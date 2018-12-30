@@ -11,6 +11,7 @@ function love.load()
 	constants.gameStateMainMenu = 1;
 	constants.gameStateRunning = 2;
 	constants.fontSize = 40;
+	constants.font = love.graphics.newFont(constants.fontSize);
 	constants.padding = 10;
 	constants.minButtonSize = 5;
 	constants.buttonRadius = 50;
@@ -28,55 +29,53 @@ function love.load()
 	button.y = constants.buttonY;
 	button.size = constants.buttonRadius;
 
-	score = defaults.score;
-	timer = defaults.timer;
-
-	gameState = defaults.gameState;
-
-	myFont = love.graphics.newFont(constants.fontSize);
+	gm = {};
+	gm.score = defaults.score;
+	gm.timer = defaults.timer;
+	gm.state = defaults.gameState;
 end
 
 function love.update(dt)
-	if gameState == constants.gameStateRunning then
-		if timer > 0 then
-			timer = timer - dt;
+	if gm.state == constants.gameStateRunning then
+		if gm.timer > 0 then
+			gm.timer = gm.timer - dt;
 
 			if button.size >= constants.minButtonSize then
 				button.size = button.size - dt * constants.buttonSizeDecreaseRate;
 			end
 		end
 
-		if timer < 0 then
+		if gm.timer < 0 then
 			resetGame();
 		end
 	end
 end
 
 function love.draw()
-	if gameState == constants.gameStateRunning then
+	if gm.state == constants.gameStateRunning then
 		love.graphics.setColor(1, 0, 0);
 		love.graphics.circle("fill", button.x, button.y, button.size);
 	end
 
-	love.graphics.setFont(myFont);
+	love.graphics.setFont(constants.font);
 	love.graphics.setColor(1, 1, 1);
-	love.graphics.print("Score: " .. score, constants.padding, constants.padding);
-	love.graphics.printf("Time: " .. math.ceil(timer), 0, constants.padding, love.graphics.getWidth()-constants.padding, "right");
+	love.graphics.print("Score: " .. gm.score, constants.padding, constants.padding);
+	love.graphics.printf("Time: " .. math.ceil(gm.timer), 0, constants.padding, love.graphics.getWidth()-constants.padding, "right");
 
-	if gameState == 1 then
+	if gm.state == 1 then
 		love.graphics.printf("Click anywhere to begin.", 0, love.graphics.getHeight()/2, love.graphics.getWidth(), "center");
 	end
 end
 
 function love.mousepressed( x, y, b, istouch )
-	if b == 1 and gameState == constants.gameStateRunning then
+	if b == 1 and gm.state == constants.gameStateRunning then
 		if distanceBetween(love.mouse.getX(), love.mouse.getY(), button.x, button.y) < button.size then
-			score = score + 1
+			gm.score = gm.score + 1
 			setButtonPosition();
 		end
 	end
 
-	if gameState == constants.gameStateMainMenu then
+	if gm.state == constants.gameStateMainMenu then
 		startGame();
 	end
 end
@@ -92,13 +91,13 @@ function setButtonPosition()
 end
 
 function startGame()
-	timer = defaults.timer;
-	gameState = constants.gameStateRunning;
+	gm.timer = defaults.timer;
+	gm.state = constants.gameStateRunning;
 	setButtonPosition();
 end
 
 function resetGame()
-	timer = defaults.timer;
-	gameState = constants.gameStateMainMenu;
-	score = defaults.score;
+	gm.timer = defaults.timer;
+	gm.state = constants.gameStateMainMenu;
+	gm.score = defaults.score;
 end
